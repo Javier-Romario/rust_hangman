@@ -1,3 +1,6 @@
+mod database;
+
+use database::initialize_db;
 use rusqlite::{Connection, Result};
 use std::io;
 
@@ -9,29 +12,6 @@ fn main() -> Result<()> {
 
     // Start the game
     play_hangman(&conn)?;
-
-    Ok(())
-}
-
-fn initialize_db(conn: &Connection) -> Result<()> {
-    // TODO: Create tables if they don't exist
-    // For example, a table for words: CREATE TABLE words (id INTEGER PRIMARY KEY, word TEXT NOT NULL)
-    match conn.execute(
-        "CREATE TABLE if not exists words (
-            id   INTEGER PRIMARY KEY,
-            word TEXT NOT NULL UNIQUE
-        )",
-        [],
-    ) {
-        Ok(updated) => println!("{} rows were udpated", updated),
-        Err(err) => println!("update failed: {}", err),
-    };
-
-    let words = vec!["Hello", "Something", "World", "Mirai", "Helena", "Bla"];
-
-    for word in words {
-        conn.execute("INSERT INTO words (word) VALUES (?1)", [word])?;
-    }
 
     Ok(())
 }
@@ -84,11 +64,11 @@ LIMIT 1;
         words.push(row.get(0)?);
     }
 
-    println!("word got: {:?}", words.get(0));
+    // println!("word got: {:?}", words.get(0));
     Ok(words[0].to_string())
 }
 
-fn answer_correct(answer: &String, db_word: &String) -> bool {
+fn answer_correct(answer: &str, db_word: &str) -> bool {
     // TODO: Check if the answer is correct
     if answer.trim() == db_word.trim() {
         return true;
